@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>آخر مستخدم</title>
+
+<style>
+body{
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#111;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+}
+
+.box{
+    background:#222;
+    padding:30px;
+    border-radius:12px;
+}
+h1{font-size:40px;margin:0;}
+p{opacity:0.8;}
+</style>
+</head>
+<body>
+
+<div class="box" id="user">
+    <h1>...</h1>
+    <p>...</p>
+</div>
+
+<audio id="ring">
+    <source src="ring.mp3" type="audio/mpeg">
+</audio>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import { getFirestore, collection, query, orderBy, limit, onSnapshot } 
+from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCgOTHb4d-M1AsMEcGKm6iVFXHdss3W37c",
+  authDomain: "makeri-12fa6.firebaseapp.com",
+  projectId: "makeri-12fa6",
+  storageBucket: "makeri-12fa6.firebasestorage.app",
+  messagingSenderId: "14239732723",
+  appId: "1:14239732723:web:8c1a8f5d7b4fe2c1d7f886"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let lastUserId = null; // 🔥 لتتبع المستخدم السابق
+
+const q = query(
+    collection(db,"users"),
+    orderBy("createdAt","desc"),
+    limit(1)
+);
+
+onSnapshot(q, (snapshot)=>{
+
+    snapshot.forEach(doc=>{
+        const u = doc.data();
+
+        // 🔥 إذا نفس المستخدم لا تشغل صوت
+        if(lastUserId !== doc.id){
+
+            document.getElementById("user").innerHTML = `
+                <h1>${u.nom} ${u.prenom}</h1>
+                <p>رقم المكتب: ${u.bureau}</p>
+            `;
+
+            // 🔔 تشغيل الصوت فقط عند تغيير المستخدم
+            if(lastUserId !== null){
+                const audio = document.getElementById("ring");
+                audio.currentTime = 0;
+                audio.play().catch(()=>{});
+            }
+
+            lastUserId = doc.id;
+        }
+
+    });
+
+});
+
+</script>
+
+</body>
+</html>

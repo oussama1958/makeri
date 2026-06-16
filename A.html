@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إضافة مستخدم</title>
+
+<style>
+body{
+    font-family:Arial;
+    background:#f2f2f2;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.box{
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    width:90%;
+    max-width:400px;
+}
+
+input{
+    width:100%;
+    margin:10px 0;
+    padding:10px;
+}
+
+button{
+    width:100%;
+    padding:10px;
+    background:blue;
+    color:white;
+    border:none;
+}
+</style>
+</head>
+<body>
+
+<div class="box">
+
+<h2>إضافة مستخدم</h2>
+
+<input id="nom" placeholder="الاسم">
+<input id="prenom" placeholder="اللقب">
+<input id="bureau" placeholder="رقم المكتب">
+
+<button onclick="ajouter()">حفظ</button>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCgOTHb4d-M1AsMEcGKm6iVFXHdss3W37c",
+  authDomain: "makeri-12fa6.firebaseapp.com",
+  projectId: "makeri-12fa6",
+  storageBucket: "makeri-12fa6.firebasestorage.app",
+  messagingSenderId: "14239732723",
+  appId: "1:14239732723:web:8c1a8f5d7b4fe2c1d7f886"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.ajouter = async () => {
+
+await addDoc(collection(db,"users"),{
+    nom: nom.value,
+    prenom: prenom.value,
+    bureau: bureau.value,
+    createdAt: Date.now()
+});
+
+alert("تمت الإضافة");
+nom.value="";
+prenom.value="";
+bureau.value="";
+
+}
+
+</script>
+
+</body>
+</html>
