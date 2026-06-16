@@ -25,9 +25,6 @@ body{
     border-radius:12px;
 }
 
-h1{font-size:40px;margin:0;}
-p{opacity:0.8;}
-
 button{
     margin-top:15px;
     padding:10px 20px;
@@ -45,16 +42,13 @@ button{
     <h1>في انتظار البيانات...</h1>
 </div>
 
-<!-- 🔊 صوت -->
-<audio id="ring" src="rign.mp3"></audio>
-
 <!-- 🔓 زر تفعيل الصوت -->
-<button onclick="enableSound()">تفعيل الصوت</button>
+<button onclick="enableAudio()">تفعيل الصوت</button>
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-import { getFirestore, collection, query, orderBy, limit, onSnapshot } 
+import { getFirestore, collection, query, orderBy, limit, onSnapshot }
 from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -69,13 +63,27 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-let soundEnabled = false;
 let lastUserId = null;
+let audioEnabled = false;
 
-// 🔓 تفعيل الصوت بعد ضغط المستخدم
-window.enableSound = function(){
-    soundEnabled = true;
-    alert("تم تفعيل الصوت");
+// 🔓 تفعيل الصوت
+window.enableAudio = function(){
+    audioEnabled = true;
+    alert("تم تفعيل الصوت 🔊");
+}
+
+// 🔊 نطق الاسم
+function speak(text){
+
+    if(!audioEnabled) return; // 🚫 يمنع الصوت إذا لم يتم التفعيل
+
+    const msg = new SpeechSynthesisUtterance(text);
+    msg.lang = "ar-SA";
+    msg.rate = 1;
+    msg.pitch = 1;
+
+    speechSynthesis.cancel();
+    speechSynthesis.speak(msg);
 }
 
 const q = query(
@@ -94,15 +102,8 @@ onSnapshot(q, (snapshot)=>{
             <p>رقم المكتب: ${u.bureau}</p>
         `;
 
-        // 🔔 تشغيل الصوت عند تغيير مستخدم
         if(lastUserId !== null && lastUserId !== doc.id){
-
-            if(soundEnabled){
-                const audio = document.getElementById("ring");
-                audio.currentTime = 0;
-                audio.play().catch(()=>{});
-            }
-
+            speak(`${u.nom} ${u.prenom}`);
         }
 
         lastUserId = doc.id;
