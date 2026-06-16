@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>آخر مستخدم</title>
+<title>Dernier utilisateur</title>
 
 <style>
 body{
@@ -21,8 +21,9 @@ body{
 
 .box{
     background:#222;
-    padding:30px;
+    padding:25px;
     border-radius:12px;
+    min-width:250px;
 }
 
 button{
@@ -39,11 +40,10 @@ button{
 <body>
 
 <div class="box" id="user">
-    <h1>في انتظار البيانات...</h1>
+    <h1>En attente des données...</h1>
 </div>
 
-<!-- 🔓 زر تفعيل الصوت -->
-<button onclick="enableAudio()">تفعيل الصوت</button>
+<button onclick="enableVoice()">Activer الصوت 🔊</button>
 
 <script type="module">
 
@@ -64,23 +64,20 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 let lastUserId = null;
-let audioEnabled = false;
+let voiceEnabled = false;
 
-// 🔓 تفعيل الصوت
-window.enableAudio = function(){
-    audioEnabled = true;
-    alert("تم تفعيل الصوت 🔊");
+window.enableVoice = function(){
+    voiceEnabled = true;
+    alert("Audio activé 🔊");
 }
 
-// 🔊 نطق الاسم
+// 🔊 صوت فرنسي
 function speak(text){
-
-    if(!audioEnabled) return; // 🚫 يمنع الصوت إذا لم يتم التفعيل
+    if(!voiceEnabled) return;
 
     const msg = new SpeechSynthesisUtterance(text);
-    msg.lang = "ar-SA";
+    msg.lang = "fr-FR";
     msg.rate = 1;
-    msg.pitch = 1;
 
     speechSynthesis.cancel();
     speechSynthesis.speak(msg);
@@ -99,11 +96,15 @@ onSnapshot(q, (snapshot)=>{
 
         document.getElementById("user").innerHTML = `
             <h1>${u.nom} ${u.prenom}</h1>
-            <p>رقم المكتب: ${u.bureau}</p>
+            <p>Bureau: ${u.bureau}</p>
         `;
 
-        if(lastUserId !== null && lastUserId !== doc.id){
-            speak(`${u.nom} ${u.prenom}`);
+        if(lastUserId !== null && lastUserId !== doc.id && voiceEnabled){
+
+            const message =
+                `${u.nom} ${u.prenom}, viens au bureau numéro ${u.bureau}`;
+
+            speak(message);
         }
 
         lastUserId = doc.id;
