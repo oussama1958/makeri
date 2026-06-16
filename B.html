@@ -16,6 +16,7 @@ body{
     color:white;
     font-family:Arial;
     text-align:center;
+    flex-direction:column;
 }
 
 .box{
@@ -23,20 +24,32 @@ body{
     padding:30px;
     border-radius:12px;
 }
+
 h1{font-size:40px;margin:0;}
 p{opacity:0.8;}
+
+button{
+    margin-top:15px;
+    padding:10px 20px;
+    border:none;
+    background:green;
+    color:white;
+    border-radius:8px;
+    cursor:pointer;
+}
 </style>
 </head>
 <body>
 
 <div class="box" id="user">
-    <h1>...</h1>
-    <p>...</p>
+    <h1>في انتظار البيانات...</h1>
 </div>
 
-<audio id="ring">
-    <source src="ring.mp3" type="audio/mpeg">
-</audio>
+<!-- 🔊 صوت -->
+<audio id="ring" src="rign.mp3"></audio>
+
+<!-- 🔓 زر تفعيل الصوت -->
+<button onclick="enableSound()">تفعيل الصوت</button>
 
 <script type="module">
 
@@ -56,7 +69,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-let lastUserId = null; // 🔥 لتتبع المستخدم السابق
+let soundEnabled = false;
+let lastUserId = null;
+
+// 🔓 تفعيل الصوت بعد ضغط المستخدم
+window.enableSound = function(){
+    soundEnabled = true;
+    alert("تم تفعيل الصوت");
+}
 
 const q = query(
     collection(db,"users"),
@@ -69,24 +89,23 @@ onSnapshot(q, (snapshot)=>{
     snapshot.forEach(doc=>{
         const u = doc.data();
 
-        // 🔥 إذا نفس المستخدم لا تشغل صوت
-        if(lastUserId !== doc.id){
+        document.getElementById("user").innerHTML = `
+            <h1>${u.nom} ${u.prenom}</h1>
+            <p>رقم المكتب: ${u.bureau}</p>
+        `;
 
-            document.getElementById("user").innerHTML = `
-                <h1>${u.nom} ${u.prenom}</h1>
-                <p>رقم المكتب: ${u.bureau}</p>
-            `;
+        // 🔔 تشغيل الصوت عند تغيير مستخدم
+        if(lastUserId !== null && lastUserId !== doc.id){
 
-            // 🔔 تشغيل الصوت فقط عند تغيير المستخدم
-            if(lastUserId !== null){
+            if(soundEnabled){
                 const audio = document.getElementById("ring");
                 audio.currentTime = 0;
                 audio.play().catch(()=>{});
             }
 
-            lastUserId = doc.id;
         }
 
+        lastUserId = doc.id;
     });
 
 });
