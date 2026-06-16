@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dernier utilisateur</title>
+<title>Appel</title>
 
 <style>
 body{
@@ -12,38 +12,47 @@ body{
     display:flex;
     justify-content:center;
     align-items:center;
-    background:#111;
-    color:white;
+    background:black;
+    color:#00ff99;
     font-family:Arial;
-    text-align:center;
     flex-direction:column;
+    text-align:center;
 }
 
 .box{
-    background:#222;
-    padding:25px;
-    border-radius:12px;
-    min-width:250px;
+    background:#111;
+    padding:40px;
+    border:2px solid #00ff99;
+    border-radius:15px;
+    min-width:300px;
+    box-shadow:0 0 20px #00ff99;
 }
 
+h1{font-size:60px;margin:0;}
+p{font-size:25px;}
+
 button{
-    margin-top:15px;
+    margin-top:20px;
     padding:10px 20px;
+    background:#00ff99;
     border:none;
-    background:green;
-    color:white;
-    border-radius:8px;
     cursor:pointer;
+    font-weight:bold;
 }
 </style>
 </head>
 <body>
 
 <div class="box" id="user">
-    <h1>En attente des données...</h1>
+    <h1>---</h1>
+    <p>En attente...</p>
 </div>
 
-<button onclick="enableVoice()">Activer الصوت 🔊</button>
+<button onclick="enableVoice()">Activer الصوت</button>
+
+<!-- 🔊 الأصوات -->
+<audio id="soundA" src="download.mp3"></audio>
+<audio id="soundB" src="B.mp3"></audio>
 
 <script type="module">
 
@@ -71,16 +80,34 @@ window.enableVoice = function(){
     alert("Audio activé 🔊");
 }
 
-// 🔊 صوت فرنسي
+// 🔊 الكلام الفرنسي
 function speak(text){
+
+    const soundA = document.getElementById("soundA");
+    const soundB = document.getElementById("soundB");
+
+    // 🚫 إذا الصوت غير مفعل
     if(!voiceEnabled) return;
 
-    const msg = new SpeechSynthesisUtterance(text);
-    msg.lang = "fr-FR";
-    msg.rate = 1;
+    // 🔊 تشغيل A.mp3
+    soundA.currentTime = 0;
+    soundA.play().catch(()=>{});
 
-    speechSynthesis.cancel();
-    speechSynthesis.speak(msg);
+    soundA.onended = function(){
+
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = "fr-FR";
+        msg.rate = 1;
+
+        // 🔊 بعد الكلام تشغيل B.mp3
+        msg.onend = function(){
+            soundB.currentTime = 0;
+            soundB.play().catch(()=>{});
+        };
+
+        speechSynthesis.cancel();
+        speechSynthesis.speak(msg);
+    };
 }
 
 const q = query(
